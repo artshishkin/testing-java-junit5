@@ -1,6 +1,7 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.*;
 
 import java.time.Duration;
 
@@ -73,5 +74,39 @@ class IndexControllerTest {
     @Test
     void testAssumptionIsTrue() {
         Assumptions.assumeTrue("ART".equalsIgnoreCase("art"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.MAC)
+    void testMeOnMacOS() {
+    }
+
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testMeOnWindows() {
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_8)
+    void testMeOnJava8() {
+
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_11)
+    void testMeOnJava11() {
+
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "username", matches = "Art")
+    void testMeIfUserArt() {
+
+    }
+    @Test
+    @EnabledIfEnvironmentVariable(named = "username", matches = "admin")
+    void testMeIfUserAdmin() {
+
     }
 }
