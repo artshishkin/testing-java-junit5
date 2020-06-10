@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class IndexControllerTest {
@@ -32,4 +34,34 @@ class IndexControllerTest {
             controller.oupsHandler();
         });
     }
+
+    @Test
+    void testTimeout() {
+        System.out.println("Start simple timeoutTest");
+        long start = System.currentTimeMillis();
+        assertAll("Timeout test:",
+                () -> assertTimeout(Duration.ofMillis(100), () -> {
+                    Thread.sleep(2000);
+                    System.out.println("I got here");
+                }),
+                () -> System.out.printf("Execution take %d ms", System.currentTimeMillis() - start));
+//   org.opentest4j.AssertionFailedError: execution exceeded timeout of 100 ms by 4901 ms
+//  do not abort execution
+
+    }
+
+    @Test
+    void testTimeoutPreemptive() {
+        System.out.println("Start preemptiveTimeoutTest");
+        long start = System.currentTimeMillis();
+        assertAll("Timeout preemptive test:",
+                () -> assertTimeoutPreemptively(Duration.ofMillis(100), () -> {
+                    Thread.sleep(2000);
+                    System.out.println("I got here");
+                }),
+                () -> System.out.printf("Execution take %d ms", System.currentTimeMillis() - start));
+//        org.opentest4j.AssertionFailedError: execution timed out after 100 ms
+        // ----- ABORT execution ------
+    }
+
 }
