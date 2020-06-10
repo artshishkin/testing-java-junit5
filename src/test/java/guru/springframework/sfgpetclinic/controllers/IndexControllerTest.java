@@ -1,8 +1,6 @@
 package guru.springframework.sfgpetclinic.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 
@@ -36,6 +34,7 @@ class IndexControllerTest {
     }
 
     @Test
+    @Disabled("Sample of timeout failing test (may enable for studying)")
     void testTimeout() {
         System.out.println("Start simple timeoutTest");
         long start = System.currentTimeMillis();
@@ -51,6 +50,7 @@ class IndexControllerTest {
     }
 
     @Test
+    @Disabled("Sample of timeout failing test (may enable for studying)")
     void testTimeoutPreemptive() {
         System.out.println("Start preemptiveTimeoutTest");
         long start = System.currentTimeMillis();
@@ -64,4 +64,14 @@ class IndexControllerTest {
         // ----- ABORT execution ------
     }
 
+
+    @Test
+    void testAssumptionTrue() {
+        Assumptions.assumeTrue("ART".equalsIgnoreCase(System.getenv("ART_RUNTIME")));
+    }
+
+    @Test
+    void testAssumptionIsTrue() {
+        Assumptions.assumeTrue("ART".equalsIgnoreCase("art"));
+    }
 }
