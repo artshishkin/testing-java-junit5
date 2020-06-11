@@ -7,6 +7,7 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("controller")
 class IndexControllerTest {
 
     IndexController controller;
