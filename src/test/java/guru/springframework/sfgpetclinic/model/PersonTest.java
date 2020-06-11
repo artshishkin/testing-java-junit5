@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Person Tests")
 class PersonTest implements ModelTests {
 
     @Test
@@ -24,19 +25,31 @@ class PersonTest implements ModelTests {
         assertEquals("Shyshkin", person.getLastName(), "last name does not match");
     }
 
-    @RepeatedTest(value = 10, name = "{displayName} : {currentRepetition} / {totalRepetitions}")
-    @DisplayName("Simple Repeated Test")
-    void simpleRepeatedTest() {
+
+    @Nested
+    @DisplayName("Repeated Tests")
+    class PersonRepeatedTests implements BeforeEachMethodInfoOfRepeatedTests {
+        @RepeatedTest(value = 10, name = "{displayName} : {currentRepetition} / {totalRepetitions}")
+        @DisplayName("Simple Repeated Test")
+        void simpleRepeatedTest() {
+        }
+
+        @RepeatedTest(2)
+        @DisplayName("Repeated Test with Dependency Injection")
+        void repeatedTestWithDI(RepetitionInfo repetitionInfo, TestInfo testInfo) {
+            System.out.printf("test repeated %d times, left %d\n", repetitionInfo.getCurrentRepetition(), repetitionInfo.getTotalRepetitions() - repetitionInfo.getCurrentRepetition());
+            System.out.println("testInfo.getDisplayName():" + testInfo.getDisplayName());
+            System.out.println("testInfo.getTags():" + testInfo.getTags());
+            System.out.println("testInfo.getTestClass():" + testInfo.getTestClass());
+            System.out.println("testInfo.getTestMethod():" + testInfo.getTestMethod());
+        }
+
+        @DisplayName("Assignment Test")
+        @RepeatedTest(value = 3, name = "{displayName}: {currentRepetition}|{totalRepetitions}")
+        void assignmentRepeatedTest() {
+            System.out.println("Test is running...");
+        }
     }
 
-    @RepeatedTest(2)
-    @DisplayName("Repeated Test with Dependency Injection")
-    void repeatedTestWithDI(RepetitionInfo repetitionInfo, TestInfo testInfo) {
-        System.out.printf("test repeated %d times, left %d\n", repetitionInfo.getCurrentRepetition(), repetitionInfo.getTotalRepetitions() - repetitionInfo.getCurrentRepetition());
-        System.out.println("testInfo.getDisplayName():" + testInfo.getDisplayName());
-        System.out.println("testInfo.getTags():" + testInfo.getTags());
-        System.out.println("testInfo.getTestClass():" + testInfo.getTestClass());
-        System.out.println("testInfo.getTestMethod():" + testInfo.getTestMethod());
-    }
 
 }
