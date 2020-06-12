@@ -4,6 +4,7 @@ import guru.springframework.sfgpetclinic.ModelTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -52,5 +53,10 @@ class OwnerTest implements ModelTests {
         System.out.printf("State is %s, val1: %d, val2: %d", state, val1, val2);
     }
 
-
+    @DisplayName("CSV File Source Test")
+    @ParameterizedTest(name = "{displayName} [{index}] {arguments}")
+    @CsvFileSource(resources = {"/csv_input_file.csv"}, numLinesToSkip = 1)
+    void csvFileSourceTest(String state, int val1, int val2) {
+        System.out.printf("State is %s, val1: %d, val2: %d", state, val1, val2);
+    }
 }
