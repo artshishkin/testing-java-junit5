@@ -4,6 +4,7 @@ import guru.springframework.sfgpetclinic.ModelTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -39,4 +40,17 @@ class OwnerTest implements ModelTests {
     void testEnumSource(OwnerType ownerType) {
         System.out.println(ownerType);
     }
+
+    @DisplayName("CSV Input Test")
+    @ParameterizedTest(name = "{displayName} - [{index}] {argumentsWithNames}")
+    @CsvSource({
+            "Ukraine, 1, 2",
+            "USA,3,4",
+            "France,5,6"
+    })
+    void csvInputTest(String state, int val1, int val2) {
+        System.out.printf("State is %s, val1: %d, val2: %d", state, val1, val2);
+    }
+
+
 }
