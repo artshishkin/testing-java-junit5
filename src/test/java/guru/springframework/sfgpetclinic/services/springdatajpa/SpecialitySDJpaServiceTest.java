@@ -80,6 +80,14 @@ class SpecialitySDJpaServiceTest {
         long id = 2L;
         when(specialtyRepository.findById(id)).thenReturn(Optional.of(speciality));
         assertThat(service.findById(id)).isSameAs(speciality);
-        verify(specialtyRepository).findById(id);
+//        verify(specialtyRepository).findById(id);
+        verify(specialtyRepository).findById(anyLong());
+    }
+
+    @Test
+    void deleteByObject() {
+        Speciality speciality = new Speciality();
+        service.delete(speciality);
+        verify(specialtyRepository).delete(any(Speciality.class));
     }
 }
