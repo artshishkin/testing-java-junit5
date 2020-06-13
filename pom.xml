@@ -42,6 +42,7 @@
         <junit-platform.version>5.7.0-M1</junit-platform.version>
         <maven.surefire.and.failsafe.version>2.22.0</maven.surefire.and.failsafe.version>
         <!--        <maven.surefire.and.failsafe.version>3.0.0-M1</maven.surefire.and.failsafe.version>-->
+        <mockito.version>3.3.3</mockito.version>
     </properties>
 
     <dependencies>
@@ -62,12 +63,12 @@
             <version>3.16.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-platform.version}</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter-api</artifactId>-->
+<!--            <version>${junit-platform.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -78,6 +79,13 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit-platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
