@@ -14,7 +14,10 @@ import java.util.Set;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 class VisitSDJpaServiceTest {
@@ -27,38 +30,41 @@ class VisitSDJpaServiceTest {
 
     @Test
     void findAll() {
+        //given
         Set<Visit> visitsExpected = singleton(new Visit());
-        doReturn(visitsExpected).when(visitRepository).findAll();
+        given(visitRepository.findAll()).willReturn(visitsExpected);
+        //when
         Set<Visit> visitsActual = service.findAll();
-        verify(visitRepository).findAll();
+        //then
+        then(visitRepository).should().findAll();
         assertThat(visitsActual).hasSize(1).isEqualTo(visitsExpected);
     }
 
     @Test
-    void findById1() {
+    void findById() {
+        //given
         long id = 1L;
         Visit visitExpected = new Visit(id);
-        doReturn(Optional.of(visitExpected)).when(visitRepository).findById(anyLong());
+        given(visitRepository.findById(anyLong())).willReturn(Optional.of(visitExpected));
+        //when
         Visit visitActual = service.findById(id);
-        verify(visitRepository).findById(id);
+        //then
+        then(visitRepository).should().findById(id);
         assertThat(visitActual).isEqualTo(visitExpected);
     }
 
     @Test
-    void findById2() {
-        long id = 2L;
-        when(visitRepository.findById(anyLong())).thenReturn(Optional.of(new Visit()));
-        Visit visitActual = service.findById(id);
-        verify(visitRepository).findById(anyLong());
-        assertThat(visitActual).isNotNull();
-    }
-
-    @Test
     void save() {
+
+        //given
         Visit visitExpected = new Visit(2L, LocalDate.now());
-        when(visitRepository.save(any(Visit.class))).thenReturn(visitExpected);
+        given(visitRepository.save(any(Visit.class))).willReturn(visitExpected);
+
+        //when
         Visit savedVisit = service.save(visitExpected);
-        verify(visitRepository).save(any(Visit.class));
+
+        //then
+        then(visitRepository).should().save(any(Visit.class));
         assertThat(savedVisit)
                 .isNotNull()
                 .isEqualToComparingFieldByField(visitExpected);
@@ -66,14 +72,21 @@ class VisitSDJpaServiceTest {
 
     @Test
     void delete() {
-        service.delete(new Visit());
-        verify(visitRepository).delete(any(Visit.class));
+        //given
+        Visit visit = new Visit();
+        //when
+        service.delete(visit);
+        //then
+        then(visitRepository).should().delete(any(Visit.class));
     }
 
     @Test
     void deleteById() {
-        long id = 1L;
+        //given
+        long id = 33L;
+        //when
         service.deleteById(id);
-        verify(visitRepository).deleteById(id);
+        //then
+        then(visitRepository).should().deleteById(id);
     }
 }
