@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 
@@ -108,10 +109,16 @@ class SpecialitySDJpaServiceTest {
 // given-when-then
     @Test
     void findByIdBddTest() {
+        //given
         Speciality speciality = new Speciality();
-        long id = 2L;
-        given(specialtyRepository.findById(id)).willReturn(Optional.of(speciality));
-        assertThat(service.findById(id)).isNotNull();
-        verify(specialtyRepository).findById(anyLong());
+        given(specialtyRepository.findById(anyLong())).willReturn(Optional.of(speciality));
+        //when
+        Speciality speciality1 = service.findById(1L);
+        Speciality speciality2 = service.findById(2L);
+        //then
+        assertThat(speciality1).isNotNull();
+        assertThat(speciality2).isNotNull();
+        then(specialtyRepository).should(times(2)).findById(anyLong());
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 }
