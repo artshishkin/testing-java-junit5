@@ -15,7 +15,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class SpecialitySDJpaServiceTest {
 
@@ -26,71 +25,92 @@ class SpecialitySDJpaServiceTest {
     SpecialitySDJpaService service;
 
     @Test
-    void delete() {
-        service.delete(new Speciality());
-    }
-
-    @Test
     void deleteByIdOnce() {
-        service.deleteById(1L);
-        verify(specialtyRepository).deleteById(1L);
+        //given
+        long id = 1L;
+        //when
+        service.deleteById(id);
+        //then
+        then(specialtyRepository).should().deleteById(id);
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 
     @Test
     void deleteByIdTwice() {
+        //when
         service.deleteById(1L);
-        service.deleteById(1L);
-        verify(specialtyRepository, times(2)).deleteById(1L);
+        service.deleteById(2L);
+        //then
+        then(specialtyRepository).should(times(2)).deleteById(anyLong());
     }
 
     @Test
     void deleteByIdAtLeastOnce() {
+        //when
         service.deleteById(1L);
-        service.deleteById(1L);
-        verify(specialtyRepository, atLeastOnce()).deleteById(1L);
+        service.deleteById(2L);
+        //then
+        then(specialtyRepository).should(atLeastOnce()).deleteById(anyLong());
     }
 
     @Test
     void deleteByIdAtLeastNTimes() {
+        //given - none
+        //when
         service.deleteById(1L);
-        service.deleteById(1L);
-        service.deleteById(1L);
-        verify(specialtyRepository, atLeast(2)).deleteById(1L);
+        service.deleteById(2L);
+        service.deleteById(3L);
+        //then
+        then(specialtyRepository).should(atLeast(2)).deleteById(anyLong());
     }
 
     @Test
     void deleteByIdAtMostNTimes() {
+        //given - none
+        //when
         service.deleteById(1L);
-        service.deleteById(1L);
-        service.deleteById(1L);
-        verify(specialtyRepository, atMost(5)).deleteById(1L);
+        service.deleteById(2L);
+        service.deleteById(3L);
+        //then
+        then(specialtyRepository).should(atMost(5)).deleteById(anyLong());
     }
 
     @Test
     void deleteByIdNever() {
+        //given - none
+        //when
         service.deleteById(1L);
         service.deleteById(1L);
         service.deleteById(1L);
-        verify(specialtyRepository, atLeastOnce()).deleteById(1L);
-        verify(specialtyRepository, never()).deleteById(2L);
+        //then
+        then(specialtyRepository).should(atLeastOnce()).deleteById(1L);
+        then(specialtyRepository).should(never()).deleteById(2L);
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 
 
     @Test
     void findByIdTest() {
+        //given
         Speciality speciality = new Speciality();
         long id = 2L;
-        when(specialtyRepository.findById(id)).thenReturn(Optional.of(speciality));
-        assertThat(service.findById(id)).isSameAs(speciality);
-//        verify(specialtyRepository).findById(id);
-        verify(specialtyRepository).findById(anyLong());
+        when(specialtyRepository.findById(anyLong())).thenReturn(Optional.of(speciality));
+        //when
+        Speciality specialityActual = service.findById(id);
+        //then
+        assertThat(specialityActual).isSameAs(speciality);
+        then(specialtyRepository).should().findById(id);
     }
 
     @Test
     void deleteByObject() {
+        //given
         Speciality speciality = new Speciality();
+        //when
         service.delete(speciality);
-        verify(specialtyRepository).delete(any(Speciality.class));
+        //then
+        then(specialtyRepository).should().delete(any(Speciality.class));
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 
 
