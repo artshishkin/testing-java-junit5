@@ -141,4 +141,6 @@ class SpecialitySDJpaServiceTest {
         then(specialtyRepository).should(times(2)).findById(anyLong());
         then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
+
+
 }
