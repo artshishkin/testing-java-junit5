@@ -2,8 +2,10 @@ package guru.springframework.sfgpetclinic.services.springdatajpa;
 
 import guru.springframework.sfgpetclinic.model.Speciality;
 import guru.springframework.sfgpetclinic.repositories.SpecialtyRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,9 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SpecialitySDJpaServiceTest {
@@ -142,5 +142,32 @@ class SpecialitySDJpaServiceTest {
         then(specialtyRepository).shouldHaveNoMoreInteractions();
     }
 
+    @Test
+    void testDoThrow() {
+        doThrow(new RuntimeException("boom")).when(specialtyRepository).delete(any());
+        Assertions.assertThrows(RuntimeException.class, () -> service.delete(null));
+        verify(specialtyRepository).delete(any());
+    }
 
+    @Test
+    void testReturnVoidThrowBDD() {
+        //given
+        willThrow(new RuntimeException("boom")).given(specialtyRepository).delete(any());
+        //when
+        Assertions.assertThrows(RuntimeException.class, () -> service.delete(null));
+        //then
+        then(specialtyRepository).should().delete(any());
+//        given(specialtyRepository.deleteById(anyLong())).willThrow(new RuntimeException("bang")); //some problems - return void
+    }
+
+    @Test
+    void testFindByIdThrows() {
+        //given
+        given(specialtyRepository.findById(anyLong())).willThrow(new RuntimeException("boom"));
+        //when
+        Executable executable = () -> service.findById(-1L);
+        //then
+        Assertions.assertThrows(RuntimeException.class, executable);
+        then(specialtyRepository).should().findById(anyLong());
+    }
 }
