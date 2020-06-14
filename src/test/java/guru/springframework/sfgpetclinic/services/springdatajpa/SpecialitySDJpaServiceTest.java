@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 
@@ -89,5 +90,28 @@ class SpecialitySDJpaServiceTest {
         Speciality speciality = new Speciality();
         service.delete(speciality);
         verify(specialtyRepository).delete(any(Speciality.class));
+    }
+
+
+    //BDD Section
+// OLD VERSION
+//    @Test
+//    void findByIdTest() {
+//        Speciality speciality = new Speciality();
+//        long id = 2L;
+//        when(specialtyRepository.findById(id)).thenReturn(Optional.of(speciality));
+//        assertThat(service.findById(id)).isSameAs(speciality);
+//        verify(specialtyRepository).findById(anyLong());
+//    }
+
+    // BDD VERSION
+// given-when-then
+    @Test
+    void findByIdBddTest() {
+        Speciality speciality = new Speciality();
+        long id = 2L;
+        given(specialtyRepository.findById(id)).willReturn(Optional.of(speciality));
+        assertThat(service.findById(id)).isNotNull();
+        verify(specialtyRepository).findById(anyLong());
     }
 }
