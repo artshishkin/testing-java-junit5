@@ -18,7 +18,7 @@ import static org.mockito.BDDMockito.*;
 @ExtendWith(MockitoExtension.class)
 class SpecialitySDJpaServiceTest {
 
-    @Mock
+    @Mock(lenient = true)
     SpecialtyRepository specialtyRepository;
 
     @InjectMocks
@@ -169,5 +169,43 @@ class SpecialitySDJpaServiceTest {
         //then
         Assertions.assertThrows(RuntimeException.class, executable);
         then(specialtyRepository).should().findById(anyLong());
+    }
+
+    @Test
+    void testSaveLambda() {
+        //given
+        final String MATCH_ME = "Match me";
+        Speciality speciality = new Speciality(MATCH_ME);
+
+        Speciality savedSpeciality = new Speciality();
+        savedSpeciality.setId(1L);
+        //need mock to only return on match MATCH_ME
+        given(specialtyRepository.save(argThat(argument -> argument.getDescription().equals(MATCH_ME)))).willReturn(savedSpeciality);
+//        willReturn(savedSpeciality).given(specialtyRepository).save(argThat(argument -> argument.getDescription().equals(MATCH_ME)));
+//        doReturn(savedSpeciality).when(specialtyRepository).save(argThat(argument -> argument.getDescription().equals(MATCH_ME)));
+//        when(specialtyRepository.save(argThat(argument -> argument.getDescription().equals(MATCH_ME)))).thenReturn(savedSpeciality);
+
+        //when
+        Speciality returnedSpeciality = service.save(speciality);
+
+        //then
+        assertThat(returnedSpeciality.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    void testSaveLambdaNotMatch() {
+        //given
+        final String MATCH_ME = "Match me";
+        Speciality speciality = new Speciality("Not match");
+
+        Speciality savedSpeciality = new Speciality();
+        savedSpeciality.setId(1L);
+        given(specialtyRepository.save(argThat(argument -> argument.getDescription().equals(MATCH_ME)))).willReturn(savedSpeciality);
+
+        //when
+        Speciality returnedSpeciality = service.save(speciality);
+
+        //then
+        assertThat(returnedSpeciality).isNull();
     }
 }
