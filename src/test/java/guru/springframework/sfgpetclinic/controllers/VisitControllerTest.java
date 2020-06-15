@@ -2,12 +2,13 @@ package guru.springframework.sfgpetclinic.controllers;
 
 import guru.springframework.sfgpetclinic.model.Pet;
 import guru.springframework.sfgpetclinic.model.Visit;
-import guru.springframework.sfgpetclinic.services.PetService;
 import guru.springframework.sfgpetclinic.services.VisitService;
+import guru.springframework.sfgpetclinic.services.map.PetMapService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
@@ -24,8 +25,9 @@ class VisitControllerTest {
     @Mock
     VisitService visitService;
 
-    @Mock
-    PetService petService;
+    //    @Mock
+    @Spy
+    PetMapService petService;
 
     @InjectMocks
     VisitController visitController;
@@ -34,15 +36,41 @@ class VisitControllerTest {
     void loadPetWithVisit() {
         //given
         Map<String, Object> model = new HashMap<>();
-        given(petService.findById(anyLong())).willReturn(new Pet(1L));
+        Pet pet = new Pet(12L);
+        Pet pet3 = new Pet(3L);
+        petService.save(pet);
+        given(petService.findById(anyLong())).willCallRealMethod();
 
         //when
-        Visit visit = visitController.loadPetWithVisit(1L, model);
+        Visit visit = visitController.loadPetWithVisit(12L, model);
 
         //then
         then(visitService).shouldHaveNoInteractions();
-        then(petService).should().findById(1L);
+        then(petService).should().findById(12L);
         assertThat(visit).isNotNull();
         assertThat(visit.getPet()).isNotNull();
+        assertThat(visit.getPet().getId()).isEqualTo(12L);
+
+    }
+
+    @Test
+    void loadPetWithVisitWithStubbing() {
+        //given
+        Map<String, Object> model = new HashMap<>();
+        Pet pet = new Pet(12L);
+        Pet pet3 = new Pet(3L);
+        petService.save(pet);
+        given(petService.findById(anyLong())).willReturn(pet3);
+
+        //when
+        Visit visit = visitController.loadPetWithVisit(12L, model);
+
+        //then
+        then(visitService).shouldHaveNoInteractions();
+        then(petService).should().findById(12L);
+        assertThat(visit).isNotNull();
+        assertThat(visit.getPet()).isNotNull();
+        assertThat(visit.getPet().getId()).isEqualTo(3L);
+
     }
 }
