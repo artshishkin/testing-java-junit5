@@ -41,7 +41,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(1L);
         service.deleteById(2L);
         //then
-        then(specialtyRepository).should(times(2)).deleteById(anyLong());
+        then(specialtyRepository).should(timeout(100).times(2)).deleteById(anyLong());
     }
 
     @Test
@@ -50,7 +50,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(1L);
         service.deleteById(2L);
         //then
-        then(specialtyRepository).should(atLeastOnce()).deleteById(anyLong());
+        then(specialtyRepository).should(timeout(100).atLeastOnce()).deleteById(anyLong());
     }
 
     @Test
@@ -61,7 +61,7 @@ class SpecialitySDJpaServiceTest {
         service.deleteById(2L);
         service.deleteById(3L);
         //then
-        then(specialtyRepository).should(atLeast(2)).deleteById(anyLong());
+        then(specialtyRepository).should(timeout(10).atLeast(2)).deleteById(anyLong());
     }
 
     @Test
@@ -99,7 +99,7 @@ class SpecialitySDJpaServiceTest {
         Speciality specialityActual = service.findById(id);
         //then
         assertThat(specialityActual).isSameAs(speciality);
-        then(specialtyRepository).should().findById(id);
+        then(specialtyRepository).should(timeout(100)).findById(id);
     }
 
     @Test
@@ -207,5 +207,24 @@ class SpecialitySDJpaServiceTest {
 
         //then
         assertThat(returnedSpeciality).isNull();
+    }
+
+    @Test
+    void testSaveTimeout() {
+        //given
+        given(specialtyRepository.save(any(Speciality.class))).willReturn(new Speciality());
+
+        //when
+        new Thread(()->{
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
+            service.save(new Speciality());
+        }).start();
+
+        //then
+        then(specialtyRepository).should(timeout(50).times(0)).save(any(Speciality.class));
+        then(specialtyRepository).should(timeout(150)).save(any(Speciality.class));
     }
 }
