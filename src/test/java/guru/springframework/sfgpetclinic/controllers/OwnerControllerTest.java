@@ -8,10 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -24,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.inOrder;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -108,6 +105,9 @@ class OwnerControllerTest {
     @Nested
     class UsingAnswersTests {
 
+        @Mock
+        private Model modelMock;
+
         @BeforeEach
         void setUp() {
             given(ownerServiceMock.findAllByLastNameLike(stringArgumentCaptor.capture()))
@@ -155,14 +155,17 @@ class OwnerControllerTest {
         void processFindFormWildcardStringAnnotatedMultipleResults() {
             //given
             Owner owner = new Owner(-1L, null, "Buzz");
+            InOrder inOrder = inOrder(modelMock, ownerServiceMock);
 
             //when
-            String viewName = controller.processFindForm(owner, resultMock, mock(Model.class));
+            String viewName = controller.processFindForm(owner, resultMock, modelMock);
 
             //then
             then(ownerServiceMock).should().findAllByLastNameLike(anyString());
             assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Buzz%");
             assertThat(viewName).isEqualTo("owners/ownersList");
+            inOrder.verify(ownerServiceMock).findAllByLastNameLike(anyString());
+            inOrder.verify(modelMock).addAttribute(anyString(), any());
         }
     }
 }
