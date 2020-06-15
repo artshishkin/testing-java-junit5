@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -132,9 +132,11 @@ class OwnerControllerTest {
             String viewName = controller.processFindForm(owner, resultMock, null);
 
             //then
+            then(ownerServiceMock).shouldHaveNoMoreInteractions();
             then(ownerServiceMock).should().findAllByLastNameLike(anyString());
             assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Bar%");
             assertThat(viewName).startsWith("redirect:/owners/");
+            verifyNoInteractions(modelMock);
         }
 
         @Test
@@ -149,6 +151,7 @@ class OwnerControllerTest {
             then(ownerServiceMock).should().findAllByLastNameLike(anyString());
             assertThat(stringArgumentCaptor.getValue()).isEqualTo("%NoResult%");
             assertThat(viewName).isEqualTo("owners/findOwners");
+            verifyNoInteractions(modelMock);
         }
 
         @Test
@@ -165,7 +168,8 @@ class OwnerControllerTest {
             assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Buzz%");
             assertThat(viewName).isEqualTo("owners/ownersList");
             inOrder.verify(ownerServiceMock).findAllByLastNameLike(anyString());
-            inOrder.verify(modelMock).addAttribute(anyString(), any());
+            inOrder.verify(modelMock, times(1)).addAttribute(anyString(), any());
+            verifyNoMoreInteractions(modelMock);
         }
     }
 }
