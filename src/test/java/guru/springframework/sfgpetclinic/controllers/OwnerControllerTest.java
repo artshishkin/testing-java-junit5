@@ -1,8 +1,11 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import guru.springframework.sfgpetclinic.fauxspring.BindingResult;
+import guru.springframework.sfgpetclinic.fauxspring.Model;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -11,13 +14,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerControllerTest {
@@ -30,9 +37,6 @@ class OwnerControllerTest {
 
     @Mock
     BindingResult resultMock;
-
-    @Mock
-    Owner ownerMock;
 
     @InjectMocks
     OwnerController controller;
@@ -56,16 +60,15 @@ class OwnerControllerTest {
     @Test
     void processCreationFormResultNoErrors() {
         //given
+        Owner owner = new Owner(5L, "Foo", "Bar");
         given(resultMock.hasErrors()).willReturn(false);
-        given(ownerMock.getId()).willReturn(5L);
-        given(ownerServiceMock.save(any(Owner.class))).willReturn(ownerMock);
+        given(ownerServiceMock.save(any(Owner.class))).willReturn(owner);
 
         //when
-        String viewName = controller.processCreationForm(ownerMock, resultMock);
+        String viewName = controller.processCreationForm(owner, resultMock);
 
         //then
         then(ownerServiceMock).should().save(any(Owner.class));
-        then(ownerMock).should().getId();
         then(resultMock).should().hasErrors();
         assertThat(viewName).isEqualToIgnoringCase(REDIRECT_OWNERS_5);
     }
@@ -102,17 +105,64 @@ class OwnerControllerTest {
         assertThat(argumentCaptor.getValue()).isEqualTo("%Bar%");
     }
 
-    @Test
-    void processFindFormWildcardStringAnnotated() {
-        //given
-        Owner owner = new Owner(1L, "Foo", "Bar");
-        given(ownerServiceMock.findAllByLastNameLike(stringArgumentCaptor.capture())).willReturn(Collections.singletonList(owner));
+    @Nested
+    class UsingAnswersTests {
 
-        //when
-        String viewName = controller.processFindForm(owner, resultMock, null);
+        @BeforeEach
+        void setUp() {
+            given(ownerServiceMock.findAllByLastNameLike(stringArgumentCaptor.capture()))
+                    .willAnswer(invocation -> {
+                        String name = invocation.getArgument(0);
+                        if ("%Bar%".equalsIgnoreCase(name)) return singletonList(new Owner(1L, "Foo", "Bar"));
+                        if ("%Buzz%".equalsIgnoreCase(name)) return Arrays.asList(
+                                new Owner(2L, "Yahoo", "Buzz1"),
+                                new Owner(3L, "Yabadabadoo", "Buzz2")
+                        );
+                        return emptyList();
+                    });
 
-        //then
-        then(ownerServiceMock).should().findAllByLastNameLike(anyString());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Bar%");
+        }
+
+        @Test
+        void processFindFormWildcardStringAnnotatedOneResult() {
+            //given
+            Owner owner = new Owner(-1L, null, "Bar");
+
+            //when
+            String viewName = controller.processFindForm(owner, resultMock, null);
+
+            //then
+            then(ownerServiceMock).should().findAllByLastNameLike(anyString());
+            assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Bar%");
+            assertThat(viewName).startsWith("redirect:/owners/");
+        }
+
+        @Test
+        void processFindFormWildcardStringAnnotatedNoResults() {
+            //given
+            Owner owner = new Owner(-1L, null, "NoResult");
+
+            //when
+            String viewName = controller.processFindForm(owner, resultMock, null);
+
+            //then
+            then(ownerServiceMock).should().findAllByLastNameLike(anyString());
+            assertThat(stringArgumentCaptor.getValue()).isEqualTo("%NoResult%");
+            assertThat(viewName).isEqualTo("owners/findOwners");
+        }
+
+        @Test
+        void processFindFormWildcardStringAnnotatedMultipleResults() {
+            //given
+            Owner owner = new Owner(-1L, null, "Buzz");
+
+            //when
+            String viewName = controller.processFindForm(owner, resultMock, mock(Model.class));
+
+            //then
+            then(ownerServiceMock).should().findAllByLastNameLike(anyString());
+            assertThat(stringArgumentCaptor.getValue()).isEqualTo("%Buzz%");
+            assertThat(viewName).isEqualTo("owners/ownersList");
+        }
     }
 }
